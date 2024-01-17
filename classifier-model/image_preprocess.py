@@ -18,9 +18,19 @@ classes = os.listdir(data_dir)
     
 """
 
-transformations = transforms.Compose(
-    [transforms.Resize((256, 256)), transforms.ToTensor()]
-)
+from torchvision import transforms
+
+transformations = transforms.Compose([
+    transforms.Resize((256, 256)),
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomVerticalFlip(),  
+    transforms.RandomRotation(20),  
+    transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2), 
+    transforms.RandomResizedCrop(256, scale=(0.8, 1.0), ratio=(0.8, 1.2)), 
+    transforms.GaussianBlur(kernel_size=3),  
+    transforms.ToTensor()
+])
+
 
 dataset = ImageFolder(data_dir, transform=transformations)
 
