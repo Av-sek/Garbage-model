@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torchvision.models import resnet50, ResNet50_Weights
+from torchvision.models import resnet18, ResNet18_Weights
 from image_preprocess import dataset
 
 def accuracy(outputs, labels):
@@ -43,7 +43,7 @@ class ResNet(ImageClassificationBase):
     def __init__(self):
         super().__init__()
         # Use a pretrained model
-        self.network = resnet50(pretrained=True)
+        self.network = resnet18(ResNet18_Weights.IMAGENET1K_V1)
         # Replace last layer
         num_ftrs = self.network.fc.in_features
         self.network.fc = nn.Linear(num_ftrs, len(dataset.classes))

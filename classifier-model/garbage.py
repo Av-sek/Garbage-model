@@ -57,7 +57,6 @@ def evaluate(model, val_loader):
 
 def fit(epochs, lr, model, train_loader, val_loader, opt_func=torch.optim.SGD):
     history = []
-    losses = []
     optimizer = opt_func(model.parameters(), lr)
     for epoch in range(epochs):
         # Training Phase
@@ -87,7 +86,7 @@ num_epochs = 10
 opt_func = torch.optim.Adam
 lr = 5e-5
 
-history = fit(num_epochs, lr, model, train_dl, val_dl, opt_func)
+history,_ = fit(num_epochs, lr, model, train_dl, val_dl, opt_func)
 
 
 

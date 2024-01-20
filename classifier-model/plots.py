@@ -2,7 +2,7 @@ import os
 from matplotlib import pyplot as plt
 from torchvision.utils import make_grid
 from image_preprocess import dataset    
-save_directory='plots_images/v1-10-epochs'
+save_directory='plots_images/res18'
 # Function to create a directory if it doesn't exist
 def create_directory(directory):
     if not os.path.exists(directory):
@@ -32,14 +32,17 @@ def save_sample_image(img, label):
     plt.close()
 
 def save_losses_plot(history):
-    train_losses = [x.get("train_loss") for x in history]
+    train_losses = [x["train_loss"] for x in history]
     val_losses = [x["val_loss"] for x in history]
-    plt.plot(train_losses, "-bx")
-    plt.plot(val_losses, "-rx")
-    plt.xlabel("epoch")
-    plt.ylabel("loss")
-    plt.legend(["Training", "Validation"])
-    plt.title("Loss vs. No. of epochs")
+
+    epochs = [i for i in range(1, len(history) + 1)]
+
+    plt.plot(epochs, train_losses, "-bx", label="Training")
+    plt.plot(epochs, val_losses, "-rx", label="Validation")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.legend()
+    plt.title("Loss vs. Epochs")
 
     # Save the plot
     plot_filename = os.path.join(save_directory, 'losses_plot.png')
@@ -47,17 +50,20 @@ def save_losses_plot(history):
     plt.close()
 
 def save_accuracies_plot(history):
-    accuracies = [x["val_acc"] for x in history]
-    plt.plot(accuracies, "-x")
-    plt.xlabel("epoch")
-    plt.ylabel("accuracy")
-    plt.title("Accuracy vs. No. of epochs")
+    accuracies = [x.get("val_acc", 0) for x in history]
+
+    epochs = [i for i in range(1, len(history) + 1)]
+
+    plt.plot(epochs, accuracies, "-x")
+    plt.xlabel("Epoch")
+    plt.ylabel("Accuracy")
+    plt.title("Accuracy vs. Epochs")
 
     # Save the plot
     plot_filename = os.path.join(save_directory, 'accuracies_plot.png')
     plt.savefig(plot_filename)
     plt.close()
-
+    
 def save_losses_batch_plot(history, save_directory="."):
     train_losses = [x.get("train_loss") for x in history]
     val_losses = [x["val_loss"] for x in history]
