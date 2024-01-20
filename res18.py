@@ -10,7 +10,7 @@ from torchvision.datasets import ImageFolder
 import datetime
 from torch.utils.data import random_split
 
-SRC = "./garbage-large"
+SRC = "./garbage"
 
 import torch
 from torch import nn
@@ -171,7 +171,7 @@ class ResNet_Tier2(nn.Module):
 
 # Tier-2 Resnets.
 def ResNet18(img_channel=3, num_classes=1000):
-    return ResNet_Tier2(img_channel, [2, 2, 2, 2], num_classes)
+    return ResNet_Tier2(img_channel, [2,2,2,2], num_classes)
 
 
 # Import useful modules.
@@ -336,21 +336,20 @@ def train(model, criterion, optimizer, scheduler, num_of_epochs):
 
         # Now set model to validation mode.
         model.eval()
+        with torch.no_grad():
+            val_loss, val_accuracy = calculate_loss_and_accuracy(
+                model, val_loader, len(val_dataset), criterion
+            )
 
-        val_loss, val_accuracy = calculate_loss_and_accuracy(
-            model, val_loader, len(val_dataset), criterion
-        )
-
-        track_val_loss.append(val_loss)  # Loss Tracking
-        track_val_accuracy.append(val_accuracy)  # Accuracy Tracking
-
-        if val_accuracy > best_acc:
-            print("Found better model...")
-            print("Updating the model weights....\n")
+            track_val_loss.append(val_loss)  # Loss Tracking
+            track_val_accuracy.append(val_accuracy)  # Accuracy Tracking
             print(f"Val Loss: {val_loss:.4f} Val Acc.: {val_accuracy:.4f}\n")
+            if val_accuracy > best_acc:
+                print("Found better model...")
+                print("Updating the model weights....\n")
 
-            best_acc = val_accuracy
-            best_model_wts = copy.deepcopy(model.state_dict())
+                best_acc = val_accuracy
+                best_model_wts = copy.deepcopy(model.state_dict())
 
     model.load_state_dict(best_model_wts)  # update model
     # Plotting
@@ -397,7 +396,6 @@ data_transforms = {
             transforms.RandomResizedCrop(224),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
         ]
     ),
     "val": transforms.Compose(
@@ -405,7 +403,6 @@ data_transforms = {
             transforms.Resize(256),
             transforms.CenterCrop(224),
             transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
         ]
     ),
 }
@@ -415,7 +412,7 @@ transformations = transforms.Compose(
     [transforms.Resize((256, 256)), transforms.ToTensor()]
 )
 
-dataset = ImageFolder(SRC, transform=transformations)
+dataset = ImageFolder(SRC, transform=data_transforms["train"])
 print(dataset.classes)
 total_size = len(dataset)
 train_split = int(0.7 * total_size)
@@ -443,7 +440,7 @@ from torchvision import models
 from torch.optim import lr_scheduler
 import torch.optim as optim
 
-NUM_OF_EPOCHS = 20
+NUM_OF_EPOCHS = 100
 
 # Our Resnet Model
 model = ResNet18(img_channel=3, num_classes=len(dataset.classes))
